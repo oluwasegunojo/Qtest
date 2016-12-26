@@ -1,0 +1,1 @@
+vLogPath = 'C:\ProgramData\QlikTech\QlikViewServer\Sessions_*';

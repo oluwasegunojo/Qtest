@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:zfp="http://www.qliktech.com/zfp" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>QlikView</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=10" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="shortcut icon" type="image/x-icon" href="/QvAjaxZfc/htc/Images/favicon.ico" />
+    <link rel="stylesheet" type="text/css" media="screen" href="/QvAjaxZfc/htc/default.css" />
+ 	<link rel="stylesheet" type="text/css" media="screen" href="/QvAjaxZfc/QvsViewClient.aspx?public=only&name=Extensions/QlikView/JsLibs/loader.css" />
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" type="text/css" href="/QvAjaxZfc/QvsViewClient.aspx?public=only&name=Extensions/QlikView/JsLibs/loader-ie8.css" />
+    <![endif]-->
+    <link rel="apple-touch-icon" href="/QvAjaxZfc/htc/Images/Touch/touch-icon.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="/QvAjaxZfc/htc/Images/Touch/touch-icon_72x72.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="/QvAjaxZfc/htc/Images/Touch/touch-icon_114x114.png" />
+	<script type="text/javascript" src="/QvAjaxZfc/htc/QvAjax.js"></script>
+	<script type="text/javascript" src="/QvAjaxZfc/QvsViewClient.aspx?public=only&name=Extensions/QlikView/JsLibs/loader.js"></script>
+	<style>
+		#QvAjaxToolbar {
+			display: none !important;
+		} 
+		#loadingSpiner{
+			position:absolute;
+			z-index: 999;
+			width: 100%;
+			height: 100%;
+			background-color: white;
+			top: 0px;
+		}
+		#loadingSpiner p{
+			margin-top: 30px;
+			color: #fc9820;
+		}
+		body {
+			overflow: hidden !important;
+		}
+	</style>
+</head>
+	<body class="QvPageBody" avq="background:.SheetBackground" onresize="Qva.ResizeBody()">
+		<div id="loadingSpiner">
+			<center>
+				<img src="/QvAjaxZfc/QvsViewClient.aspx?public=only&name=Extensions/QlikView/JsLibs/mapPanel/spinningSquares.gif"/>
+				<p>Just a moment longer as we process your request...</p>
+			</center>
+		</div>
+		<div avq="toolbar:.StandardActions" id="QvAjaxToolbar">
+			<ul id="QvAjaxToolbar-right" class="ctx-menu ui-helper-clearfix">
+				<li class="cf">
+					<a href="javascript:CloseSession();" onclick="event.stopPropagation ? event.stopPropagation() : event.cancelBubble = true" id="Close">
+						<span class="cell-icon cell-CLOSE-icon"></span>
+						<span class="ctx-menu-text">Close</span>
+					</a>
+				</li>
+			</ul>
+			<div id="InitialLoader">
+				<img alt="" src="/QvAjaxZfc/htc/Images/Working.gif"/>
+				<span class="ctx-menu-text">Loading...</span>
+			</div>
+		</div>
+		<div id="Tabrow" avq="tabrow2:.TabRow" class="use-new-tabrow shadetabs2"></div>
+		<div id="PageContainer">
+			<div id="MainContainer"></div>
+		</div>
+		<img alt="" id="WorkingGif" src="/QvAjaxZfc/htc/Images/Working.gif" style="display:none;"/>
+		<script type="text/javascript">
+			if (window.location.href.indexOf("amp;") > 0) {
+			    window.location.assign(window.location.href.replace("amp;", ""))
+			} else {	   
+			    var qva;
+				function Init() {
+				    var doc = Qva.ExtractProperty("document", null);
+				    var re = new RegExp("^(//[^:/]+(?::\\d+)?/)?([^#]+)");
+				    var segm = re.exec(doc);
+				    doc = segm && segm[2];
+				    var invite = Qva.ExtractProperty("invite", null);
+					if(invite) doc = "";
+					if(doc != null) {
+						qva = new Qva.PageBinding();
+						qva.View = doc;
+						qva.Autoview = "";
+						qva.ShowDocumentTitle = true;
+						qva.AuthenticateUrl = '/QvAjaxZfc/Authenticate.aspx';
+						new Qva.Modal();
+						new Qva.Scanner(qva);
+						qva.AutoViewAppend (null, qva.DefaultScope, 'servercontrol');
+						new Qva.Collaboration(qva, document.getElementById("MainContainer"));
+						Qva.DragDrop.DropDefault = {
+							'Inside': function(pos, type) {
+								if (type == 'Field' || type == 'Dimension' || type == 'ObjectType') {                            
+									return { 'Element': 'Document.ActiveSheet' };
+								} else if (type == 'Object') {                            
+									return { 'Element': 'Document.ActiveSheet', 'Dialog': 'Drop.qvpp' };
+								} else {
+									return null;
+								}
+							}
+						};
+						new Qva.Extensions(qva);
+						qva.AddManager({
+						    'Name': qva.DefaultScope + ".Modal",
+						    'Paint': function (mode, node) {
+						        var width = parseInt(node.getAttribute('width'));
+						        var height = parseInt(node.getAttribute('height'));
+						        var name = node.getAttribute('value');
+						        var url = Qva.Remote + '?public=only&name=' + escape(name) + '.htm';
+						        var params = node.getElementsByTagName("param");
+						        for (var i = 0; i < params.length; ++i) {
+						            var key = params[i].getAttribute("key");
+						            var value = params[i].getAttribute("value");
+						            url += "&" + escape(key) + "=" + escape(value);
+						        }
+						        Qva.Modal.instance.Show(qva, url, width, height, true, "QvModal_SessionCollaboration");
+						    }
+						});
+						qva._Send("add", "Document.ActiveSheet", false);
+					} else {
+						alert("No Document");
+					}
+					Qva.SetContextMenu (document, function(event) { return qva.OnContextMenu(event); });
+					Qva.Start();
+				}
+				function CloseSession() {
+					document.body.style.background = "";
+					$('#MainContainer, #Tabrow, #QvAjaxToolbar > ul:last').html("");
+					$('body > script').nextAll().remove();
+					qva.Enabled = false;
+					qva.Ready = function () {};
+					qva.OnContextMenu = function () {};
+					qva.SendClose();
+					var $closebtn = $('#Close');
+					if ($closebtn.length) {
+						$closebtn.find('.ctx-menu-text').text($closebtn[0].RestoreText || "Restore").end().show()[0].href = 'javascript:RestoreSession()';
+					}
+				}
+				function RestoreSession() {
+					window.location = window.location;
+				}
+				function Assert(exp, message) {
+					if (!exp) { 
+						if(message) { alert(message); }
+                                                 debugger;
+					}
+					return exp;
+				}
+				if (typeof(Qva.Mgr) === "undefined") { 
+					Qva.GetDebugFiles(Init);
+				} else {
+				    Init();
+				}
+			}
+			var pingQlikView = function () {
+				for(var d in Qva.binders){
+				  var a=Qva.binders[d];
+				  if(!a.Enabled){continue}
+				  a.Set("Document","click","",true);
+				}
+	        }
+	        setTimeout(pingQlikView, 1000*60*20);
+	        setTimeout(pingQlikView, 1000*60*40); 
+	        setTimeout(pingQlikView, 1000*60*60);
+		</script>
+	</body>
+</html>
