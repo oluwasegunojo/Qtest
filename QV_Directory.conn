@@ -1,1 +1,0 @@
-[Provider=SQLOLEDB.1;Persist Security Info=True;User ID=sa;Initial Catalog=QV_Directory;Data Source=.\sqlexpress;Use Procedure for Prepare=1;Auto Translate=True;Packet Size=4096;Workstation ID=IP-0AF5C33F;Use Encryption for Data=False;Tag with column collation when possible=False] (XPassword is bbfcEWNMKRTMSJdNcZMB);
