@@ -45,3 +45,17 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+
+
+# Qlikview document and data files
+*.qvw
+*.qvd
+*.conn
+
+
+# Qlikview data directory
+Data/
+
+
+# Qlikview individual documents log files
+*Log.txt
